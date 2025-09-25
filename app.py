@@ -132,39 +132,45 @@ with tab1:
 # -------------------------
 # TAB 2: Mapa de Hoteles
 # -------------------------
-with tab2:
-    st.subheader("🗺️ Mapa interactivo de hoteles en California")
+with tabs[1]:
+    st.header("Mapa de Hoteles en California")
 
-    data_url2= "https://raw.githubusercontent.com/melody-10/Proyecto_Hoteles_California/main/hotels_ca.csv"
-    data_url3= "https://raw.githubusercontent.com/melody-10/Proyecto_Hoteles_California/main/BBDD_BI.csv"
+    # Cargar los datos
+    data_url2 = "https://raw.githubusercontent.com/melody-10/Proyecto_Hoteles_California/refs/heads/main/hotels_ca.csv"
+    data_url3 = "https://raw.githubusercontent.com/melody-10/Proyecto_Hoteles_California/refs/heads/main/BBDD_BI.csv"
 
-    df_coordenadas=pd.read_csv(data_url2)
-    df_profesor=pd.read_csv(data_url3)
+    df_coordenadas = pd.read_csv(data_url2)
+    df_profesor = pd.read_csv(data_url3)
 
-    # Filtrar abiertos
-    df_coordenadas = df_coordenadas[df_coordenadas["is_open"] == 1]
-    df_profesor = df_profesor[df_profesor["is_open"] == 1]
+    # Mostrar columnas para depuración
+    st.write("Columnas en hotels_ca.csv:", df_coordenadas.columns.tolist())
+    st.write("Columnas en BBDD_BI.csv:", df_profesor.columns.tolist())
 
-    # DataFrames con columnas necesarias
-    df_coord=df_coordenadas[["name","latitude","longitude", "address"]]
-    df_prof=df_profesor[["name","latitude","longitude", "address"]]
+    # Filtrar por is_open solo si existe
+    if "is_open" in df_coordenadas.columns:
+        df_coordenadas = df_coordenadas[df_coordenadas["is_open"] == 1]
 
-    # Juntar y quitar duplicados
-    df_final=pd.concat([df_coord,df_prof])
-    df_final = df_final.drop_duplicates(subset=["name", "address"], keep="first")
+    if "is_open" in df_profesor.columns:
+        df_profesor = df_profesor[df_profesor["is_open"] == 1]
 
-    # Crear mapa folium
-    mapa = folium.Map(location=[36.7783, -119.4179], zoom_start=6)
+    # Crear mapa base de California
+    m = folium.Map(location=[36.7783, -119.4179], zoom_start=6)
 
-    for i, row in df_final.iterrows():
-        if pd.notna(row["latitude"]) and pd.notna(row["longitude"]):
-            folium.Marker(
-                location=[row["latitude"], row["longitude"]],
-                popup=f"{row['name']}<br>{row['address']}",
-                icon=BeautifyIcon(icon="hotel", icon_shape="marker",
-                                  background_color="darkblue", text_color="white",
-                                  border_color="white", border_width=2)
-            ).add_to(mapa)
+    # Hoteles del dataset 1
+    for _, row in df_coordenadas.iterrows():
+        folium.Marker(
+            location=[row["latitude"], row["longitude"]],
+            popup=f'{row["name"]} - {row["address"]}',
+            icon=folium.Icon(color="blue", icon="info-sign"),
+        ).add_to(m)
 
-    # Mostrar mapa en la app
-    st_folium(mapa, width=1000, height=600)
+    # Hoteles del dataset 2
+    for _, row in df_profesor.iterrows():
+        folium.Marker(
+            location=[row["latitude"], row["longitude"]],
+            popup=f'{row["name"]} - {row["address"]}',
+            icon=folium.Icon(color="green", icon="ok-sign"),
+        ).add_to(m)
+
+    # Mostrar mapa en streamlit
+    folium_static(m)
