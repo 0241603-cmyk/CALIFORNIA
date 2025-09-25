@@ -135,8 +135,8 @@ with tab1:
 with tab2:
     st.subheader("🗺️ Mapa interactivo de hoteles en California")
 
-    data_url2= "https://media.githubusercontent.com/media/melody-10/Proyecto_Hoteles_California/refs/heads/main/hotels_ca.csv"
-    data_url3= "https://raw.githubusercontent.com/melody-10/Proyecto_Hoteles_California/refs/heads/main/BBDD_BI.csv"
+    data_url2= "https://raw.githubusercontent.com/melody-10/Proyecto_Hoteles_California/main/hotels_ca.csv"
+    data_url3= "https://raw.githubusercontent.com/melody-10/Proyecto_Hoteles_California/main/BBDD_BI.csv"
 
     df_coordenadas=pd.read_csv(data_url2)
     df_profesor=pd.read_csv(data_url3)
