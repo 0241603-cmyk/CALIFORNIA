@@ -133,3 +133,41 @@ else:
                     st.markdown('<div class="content-box"><p>No hay ratings numéricos para graficar.</p></div>', unsafe_allow_html=True)
             else:
                 st.markdown('<div class="content-box"><p>No hay ratings disponibles para comparar.</p></div>', unsafe_allow_html=True)
+st.header("🗺️ Mapa de Hoteles en California")
+
+# Cargar datos de coordenadas
+data_url2= "https://media.githubusercontent.com/media/melody-10/Proyecto_Hoteles_California/refs/heads/main/hotels_ca.csv"
+data_url3= "https://raw.githubusercontent.com/melody-10/Proyecto_Hoteles_California/refs/heads/main/BBDD_BI.csv"
+
+df_coordenadas=pd.read_csv(data_url2)
+df_profesor=pd.read_csv(data_url3)
+
+df_coordenadas = df_coordenadas[df_coordenadas["is_open"] == 1]
+df_profesor = df_profesor[df_profesor["is_open"] == 1]
+
+df_coord=df_coordenadas[["name","latitude","longitude", "address"]]
+df_prof=df_profesor[["name","latitude","longitude", "address"]]
+
+df_final=pd.concat([df_coord,df_prof])
+df_final = df_final.drop_duplicates(subset=["name", "address"], keep="first")
+
+# Crear mapa
+mapa = folium.Map(location=[36.7783, -119.4179], zoom_start=6)
+
+for i, row in df_final.iterrows():
+    if pd.notna(row["latitude"]) and pd.notna(row["longitude"]):
+        folium.Marker(
+            location=[row["latitude"], row["longitude"]],
+            popup=f"{row['name']}<br>{row['address']}",
+            icon=BeautifyIcon(
+                icon="hotel",
+                icon_shape="marker",
+                background_color="darkblue",
+                text_color="white",
+                border_color="white",
+                border_width=2)
+        ).add_to(mapa)
+
+# Mostrar mapa en Streamlit
+mapa_html = mapa._repr_html_()
+html(mapa_html, height=600)
