@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import ast
 import math
+import folium
+from folium.plugins import BeautifyIcon
+from streamlit.components.v1 import html
 
 # Configuración de la página para que ocupe todo el ancho
 st.set_page_config(layout="wide")
