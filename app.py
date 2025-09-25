@@ -1,11 +1,3 @@
-import streamlit as st
-import pandas as pd
-import ast
-import math
-import folium
-from folium.plugins import BeautifyIcon
-from streamlit_folium import st_folium
-
 # Configuración de la página para que ocupe todo el ancho
 st.set_page_config(layout="wide")
 
@@ -136,51 +128,3 @@ else:
                     st.markdown('<div class="content-box"><p>No hay ratings numéricos para graficar.</p></div>', unsafe_allow_html=True)
             else:
                 st.markdown('<div class="content-box"><p>No hay ratings disponibles para comparar.</p></div>', unsafe_allow_html=True)
-
-# -------------------------
-# Pestaña 2: Mapa de Hoteles
-# -------------------------
-with tabs[1]:
-    st.header("🗺️ Mapa de Hoteles en California")
-
-    # Cargar datasets de coordenadas
-    data_url2 = "https://raw.githubusercontent.com/melody-10/Proyecto_Hoteles_California/main/hotels_ca.csv"
-    data_url3 = "https://raw.githubusercontent.com/melody-10/Proyecto_Hoteles_California/main/BBDD_BI.csv"
-
-    df_coordenadas = pd.read_csv(data_url2)
-    df_profesor = pd.read_csv(data_url3)
-
-    # Filtrar solo abiertos si existe la columna 'is_open'
-    if "is_open" in df_coordenadas.columns:
-        df_coordenadas = df_coordenadas[df_coordenadas["is_open"] == 1].reset_index(drop=True)
-    if "is_open" in df_profesor.columns:
-        df_profesor = df_profesor[df_profesor["is_open"] == 1].reset_index(drop=True)
-
-    # Seleccionar columnas necesarias
-    cols = ["name", "latitude", "longitude", "address"]
-    df_coord = df_coordenadas[[c for c in cols if c in df_coordenadas.columns]]
-    df_prof = df_profesor[[c for c in cols if c in df_profesor.columns]]
-
-    # Combinar y quitar duplicados
-    df_final = pd.concat([df_coord, df_prof])
-    df_final = df_final.drop_duplicates(subset=["name", "address"], keep="first")
-
-    # Crear mapa centrado en California
-    mapa = folium.Map(location=[36.7783, -119.4179], zoom_start=6)
-
-    # Agregar marcadores
-    for i, row in df_final.iterrows():
-        if pd.notna(row.get("latitude")) and pd.notna(row.get("longitude")):
-            folium.Marker(
-                location=[row["latitude"], row["longitude"]],
-                popup=f"{row['name']}<br>{row['address']}",  # Nombre y dirección al hacer clic
-                icon=BeautifyIcon(
-        icon="hotel",
-        icon_shape="marker",
-        background_color="darkblue",
-        text_color="white",
-        border_color="white",
-        border_width=2)
-        ).add_to(mapa)
-  # Mostrar mapa interactivo en Streamlit
-    st_folium(mapa, width=700, height=500)                                                            
